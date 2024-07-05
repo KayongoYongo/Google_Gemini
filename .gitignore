@@ -1,0 +1,5 @@
+# Virtual environment
+gemini/
+
+# Secret keys
+.env

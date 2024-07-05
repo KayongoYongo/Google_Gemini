@@ -1,13 +1,17 @@
 import markdown
 from fastapi import HTTPException
-from fastapi import FastAPI, File, UploadFile, Depends, Request, Query
-from fastapi.responses import HTMLResponse
+from fastapi import FastAPI, File, Form, UploadFile, Depends, Request, Query
+from fastapi.responses import HTMLResponse, JSONResponse
 from fastapi.staticfiles import StaticFiles
 from fastapi.templating import Jinja2Templates
 from fastapi.middleware.cors import CORSMiddleware
 from pathlib import Path
 import google.generativeai as genai
 import markdown2
+import os
+import requests
+
+# Store these pdfs in a database, user_id, 
 
 app = FastAPI()
 templates = Jinja2Templates(directory="templates")
@@ -24,13 +28,23 @@ app.add_middleware(
 )
 
 def get_generative_model(model_name):
-    genai.configure(api_key="GEMINI_API_KEY")
+    os.environ['GEMINI_API_KEY'] = "AIzaSyDDxY0xlgOyd2QKviiTo7gbLMiXSnnoY8g"
+    genai.configure(api_key = os.environ['GEMINI_API_KEY'])
     return genai.GenerativeModel(model_name)
 
 generative_text_model = get_generative_model('gemini-pro')
-generative_image_model = get_generative_model('gemini-pro-vision')
 
 current_image_path = None
+
+@app.get("/text")
+async def root(request: Request):
+    return templates.TemplateResponse("index.html", {"request": request})  # Assuming your template is named "index.html"
+
+@app.post("/query")
+async def handle_input(request: Request, user_input):
+    response = generative_text_model.generate_content(user_input)
+    response_data = {"response": response.text}
+    return JSONResponse(content=response_data, status_code=201)
 
 @app.get("/", response_class=HTMLResponse)
 async def root(request: Request):
@@ -70,19 +84,18 @@ def removeEmpty(paragraph):
     cleaned_paragraph = '\n'.join(non_empty_lines)
     return cleaned_paragraph
 
-@app.get("/gemini")
+@app.post("/gemini")
 async def query(query: str, model_type: str = Query(default='text')):
     if not query:
         return ''
-    models = {'text': generative_text_model, 'image': generative_image_model}
+    models = {'text': generative_text_model}
     model = models.get(model_type)
 
     if not model:
         raise HTTPException(status_code=400, detail="Invalid model type")
 
     response = model.generate_content(query)
-    return removeEmpty(to_html(response.text))
-
+    return JSONResponse(content=response.text)
 
 @app.get("/gemini/img")
 async def queryimg(query: str, model_type: str = Query(default='image')):

@@ -37,6 +37,6 @@ starlette==0.35.1
 tqdm==4.66.1
 typing_extensions==4.9.0
 urllib3==2.1.0
-uvicorn==0.26.0
-python-multipart-0.0.6
-markdown2-2.4.12
+uvicorn
+python-multipart
+markdown2
