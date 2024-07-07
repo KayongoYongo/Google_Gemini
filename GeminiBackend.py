@@ -28,7 +28,6 @@ app.add_middleware(
 )
 
 def get_generative_model(model_name):
-    os.environ['GEMINI_API_KEY'] = "AIzaSyDDxY0xlgOyd2QKviiTo7gbLMiXSnnoY8g"
     genai.configure(api_key = os.environ['GEMINI_API_KEY'])
     return genai.GenerativeModel(model_name)
 
