@@ -19,7 +19,7 @@ FastAPI interface to interact with Google's Gemini generative AI models.
 1. Clone this repository.
 2. Install the required dependencies: `pip install -r requirements.txt`.
 3. Set your Google Cloud Platform API key as an environment variable named `GEMINI_API_KEY`.
-4. Run the server: `uvicorn main:app --host 0.0.0.0 --port 8000`.
+4. Run the server: `uvicorn GeminiBackend:app --host 0.0.0.0 --port 8000`.
 5. Open http://localhost:8000 in your browser.
 
 ### API Documentation:
