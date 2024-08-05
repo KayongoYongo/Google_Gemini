@@ -1,3 +1,4 @@
+from dotenv import load_dotenv
 import markdown
 from fastapi import HTTPException
 from fastapi import FastAPI, File, Form, UploadFile, Depends, Request, Query
@@ -9,8 +10,8 @@ from pathlib import Path
 import google.generativeai as genai
 import markdown2
 import os
+from pydantic import BaseModel
 import requests
-from dotenv import load_dotenv
 
 # Store these pdfs in a database, user_id, 
 
@@ -54,6 +55,19 @@ model = genai.GenerativeModel(
 )
 
 current_image_path = None
+
+# Define the request body model
+class InputData(BaseModel):
+    input_text: str
+
+# Define the API endpoint
+@app.post("/generate")
+async def generate_content(data: InputData):
+    try:
+        response = model.generate_content([data.input_text])
+        return {"output": response.text}
+    except Exception as e:
+        raise HTTPException(status_code=500, detail=str(e))
 
 @app.get("/text")
 async def root(request: Request):
@@ -104,19 +118,6 @@ def removeEmpty(paragraph):
     return cleaned_paragraph
 
 """
-@app.post("/gemini")
-async def query(query: str, model_type: str = Query(default='text')):
-    if not query:
-        return ''
-    models = {'text': model}
-    model = models.get(model_type)
-
-    if not model:
-        raise HTTPException(status_code=400, detail="Invalid model type")
-
-    response = model.generate_content(query)
-    return JSONResponse(content=response.text)
-"""
 @app.get("/gemini/img")
 async def queryimg(query: str, model_type: str = Query(default='image')):
     global current_image_path
@@ -133,3 +134,4 @@ async def queryimg(query: str, model_type: str = Query(default='image')):
     # current_image_path = None
 
    # return removeEmpty(to_html(response.text))
+"""
