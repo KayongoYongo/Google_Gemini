@@ -46,7 +46,6 @@ generation_config = {
     "response_mime_type": "text/plain",
 }
 
-# Initialize the model
 model = genai.GenerativeModel(
   model_name="tunedModels/brightspend-ai-training-ilpn6zzcubfi",
   generation_config=generation_config,
